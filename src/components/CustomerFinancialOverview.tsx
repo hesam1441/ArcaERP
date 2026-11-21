@@ -1,0 +1,47 @@
+import { InlineHelp } from "./InlineHelp";
+import React, { useMemo, useState } from "react";
+import { AppDatabase, Language, Order } from "../types";
+import { formatNumber } from "../utils/formatters";
+import { convertedTransactionAmount, getOrderCurrency, getOrderPaymentSummary, hasCompleteCalculationData, isExcludedFromFinancialCalculations } from "../utils/orderAccounting";
+import { getCustomerList } from "../utils/partnerLists";
+
+export const CustomerFinancialOverview: React.FC<{ db: AppDatabase; language: Language; onUpdateOrder: (order: Order) => void; onOpenOrderFinancial: (orderId: number) => void }> = ({ db, language, onUpdateOrder, onOpenOrderFinancial }) => {
+  const fa = language === "fa";
+  const t = (faText: string, enText: string) => fa ? faText : enText;
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<"all" | "active" | "inactive">("all");
+  const rows = useMemo(() => getCustomerList(db.customers, db.suppliers).map((customer) => {
+    const orders = db.orders.filter((order) => order.CustomerID === customer.CustomerID && order.TradeOwnership !== "own_account" && !isExcludedFromFinancialCalculations(order) && (orderStatusFilter === "all" || (orderStatusFilter === "active" ? order.ActiveOrder : !order.ActiveOrder)));
+    const currencies: Record<string, { debt: number; credit: number; temporaryDebt: number }> = {};
+    orders.forEach((order) => {
+      const currency = getOrderCurrency(order);
+      const summary = getOrderPaymentSummary(db, order);
+      currencies[currency] ||= { debt: 0, credit: 0, temporaryDebt: 0 };
+      currencies[currency].debt += summary.customerOutstanding;
+      currencies[currency].credit += summary.availableCredit;
+      currencies[currency].temporaryDebt += summary.temporaryDebt;
+    });
+    return { customer, orders, currencies };
+  }).filter((row) => row.orders.length > 0 && row.customer.CustomerName.toLocaleLowerCase().includes(search.trim().toLocaleLowerCase())), [db, search, orderStatusFilter]);
+
+  return <section className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+    <div className="flex flex-wrap items-center justify-between gap-3 border-b bg-slate-50 p-4"><div><h2 className="text-sm font-bold text-slate-900">{t("وضعیت مالی خریداران", "Customer financial position")}</h2><InlineHelp><p className="mt-1 text-[10px] text-slate-500">{t("جمع بدهی، اعتبار و تأمین امانی به تفکیک ارز؛ برای جزئیات روی مشتری بزنید.", "Debt, credit and temporary funding by currency; select a customer for details.")}</p></InlineHelp></div><div className="flex gap-2"><div className="flex rounded-lg border bg-white p-1 text-[10px]">{([["all",t("همه","All")],["active",t("فعال","Active")],["inactive",t("غیرفعال","Inactive")]] as const).map(([id,label])=><button key={id} onClick={()=>setOrderStatusFilter(id)} className={`rounded-md px-3 py-1.5 font-bold ${orderStatusFilter===id?"bg-indigo-600 text-white":"text-slate-500"}`}>{label}</button>)}</div><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t("جستجوی مشتری", "Search customer")} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs"/></div></div>
+    <div className="overflow-x-auto"><table className="w-full text-right text-xs"><thead className="bg-slate-50 text-slate-500"><tr><th className="p-3">{t("مشتری", "Customer")}</th><th>{t("تعداد پرونده", "Orders")}</th><th>{t("خلاصه حساب به تفکیک ارز", "Position by currency")}</th><th>{t("وضعیت خالص", "Net position")}</th></tr></thead><tbody>{rows.map(({ customer, orders, currencies }) => {
+      const open = expanded === customer.CustomerID;
+      const currencyEntries = Object.entries(currencies) as [string, { debt: number; credit: number; temporaryDebt: number }][];
+      return <React.Fragment key={customer.CustomerID}><tr onClick={() => setExpanded(open ? null : customer.CustomerID)} className="cursor-pointer border-t hover:bg-indigo-50"><td className="p-3 font-bold text-slate-800">{customer.CustomerName}</td><td>{orders.length}</td><td><div className="flex flex-wrap gap-1.5">{currencyEntries.map(([currency, value]) => <span key={currency} className="rounded bg-slate-100 px-2 py-1 font-mono">{currency}: {t("بدهی", "debt")} {formatNumber(value.debt)} · {t("طلب", "credit")} {formatNumber(value.credit)} · {t("امانی", "temporary")} {formatNumber(value.temporaryDebt)}</span>)}</div></td><td>{currencyEntries.map(([currency, value]) => { const net = value.debt + value.temporaryDebt - value.credit; return <div key={currency} className={`font-mono font-bold ${net > .005 ? "text-rose-700" : net < -.005 ? "text-blue-700" : "text-emerald-700"}`}>{currency}: {net > .005 ? `${t("بدهکار", "debtor")} ${formatNumber(net)}` : net < -.005 ? `${t("طلبکار", "creditor")} ${formatNumber(Math.abs(net))}` : t("تسویه", "settled")}</div>; })}</td></tr>
+      {open && <tr className="bg-indigo-50/30"><td colSpan={4} className="p-4"><CustomerDetails db={db} orders={orders} language={language} onUpdateOrder={onUpdateOrder} onOpenOrderFinancial={onOpenOrderFinancial}/></td></tr>}</React.Fragment>;
+    })}</tbody></table></div>
+    {rows.length === 0 && <p className="p-8 text-center text-xs text-slate-400">{t("مشتری دارای پرونده پیدا نشد.", "No customer with orders was found.")}</p>}
+  </section>;
+};
+
+const CustomerDetails = ({ db, orders, language, onUpdateOrder, onOpenOrderFinancial }: { db: AppDatabase; orders: AppDatabase["orders"]; language: Language; onUpdateOrder: (order: Order) => void; onOpenOrderFinancial: (orderId: number) => void }) => {
+  const fa = language === "fa"; const t = (a: string, b: string) => fa ? a : b;
+  const orderIds = new Set(orders.map((order) => order.OrderID));
+  const transactions = (db.orderTransactions || []).filter((item) => orderIds.has(item.OrderID) || (item.SourceOrderID ? orderIds.has(item.SourceOrderID) : false)).sort((a, b) => (b.PaytDate || "").localeCompare(a.PaytDate || ""));
+  const orderName = (id?: number) => db.orders.find((order) => order.OrderID === id)?.ProformaInvoiceID || "-";
+  return <div className="space-y-4"><div><b className="mb-2 block text-xs text-indigo-900">{t("پرونده‌های مرتبط", "Related orders")}</b><div className="overflow-x-auto rounded-lg border bg-white"><table className="w-full text-right text-[11px]"><thead className="bg-slate-50"><tr><th className="p-2">PI</th><th>{t("فعال", "Active")}</th><th>{t("ارز", "Currency")}</th><th>{t("مبلغ", "Total")}</th><th>{t("پرداخت‌شده", "Applied")}</th><th>{t("بدهی", "Debt")}</th><th>{t("طلب", "Credit")}</th><th>{t("بدهی امانی", "Temporary debt")}</th><th>{t("وضعیت", "Status")}</th></tr></thead><tbody>{orders.map((order) => { const value = getOrderPaymentSummary(db, order); return <tr key={order.OrderID} className={`border-t ${order.ActiveOrder?"":"bg-slate-100 text-slate-400"}`}><td className="p-2"><button onClick={()=>onOpenOrderFinancial(order.OrderID)} className="font-mono font-bold text-indigo-700 underline decoration-indigo-300 underline-offset-2 hover:text-indigo-900">{order.ProformaInvoiceID}</button></td><td><button onClick={()=>onUpdateOrder({...order,ActiveOrder:!order.ActiveOrder,LifecycleStatus:!order.ActiveOrder?"active":"completed",OrderStatus:!order.ActiveOrder?"فعال (Active)":"مختومه (Completed)"})} className={`relative inline-flex h-5 w-9 items-center rounded-full transition ${order.ActiveOrder?"bg-emerald-500":"bg-slate-300"}`} title={order.ActiveOrder?t("فعال؛ کلیک برای غیرفعال‌کردن","Active; click to deactivate"):t("غیرفعال؛ کلیک برای فعال‌کردن","Inactive; click to activate")}><span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition ${order.ActiveOrder?"translate-x-1":"translate-x-5"}`}/></button></td><td>{getOrderCurrency(order)}</td><td>{formatNumber(value.invoiceTotal)}</td><td>{formatNumber(value.applied)}</td><td className="text-rose-700">{formatNumber(value.customerOutstanding)}</td><td className="text-blue-700">{formatNumber(value.availableCredit)}</td><td className="text-amber-700">{formatNumber(value.temporaryDebt)}</td><td>{value.customerStatus === "debtor" ? t("بدهکار", "Debtor") : value.customerStatus === "creditor" ? t("طلبکار", "Creditor") : t("تسویه", "Settled")}</td></tr>; })}</tbody></table></div></div>
+    <div><b className="mb-2 block text-xs text-indigo-900">{t("تمام پرداخت‌ها و انتقالات", "All payments and transfers")}</b><div className="max-h-56 overflow-auto rounded-lg border bg-white"><table className="w-full text-right text-[11px]"><thead className="sticky top-0 bg-slate-50"><tr><th className="p-2">{t("تاریخ", "Date")}</th><th>{t("نوع", "Type")}</th><th>{t("پرونده", "Order")}</th><th>{t("پرونده مبدأ", "Source")}</th><th>{t("مبلغ اصلی", "Original")}</th><th>{t("معادل", "Converted")}</th><th>{t("رسیدها", "Receipts")}</th></tr></thead><tbody>{transactions.map((item) => <tr key={item.TransactionID} className="border-t"><td className="p-2 font-mono">{item.PaytDate}</td><td>{item.TransactionType || "customer_receipt"}</td><td>{orderName(item.OrderID)}</td><td>{orderName(item.SourceOrderID)}</td><td className="font-mono">{formatNumber(item.Amount)} {item.PaymentCurrency || ""}</td><td className="font-mono">{formatNumber(convertedTransactionAmount(item))} {item.ProformaCurrency || ""}</td><td>{item.receiptAttachments?.length || 0}</td></tr>)}</tbody></table>{transactions.length === 0 && <p className="p-4 text-center text-slate-400">{t("پرداختی ثبت نشده است.", "No payments recorded.")}</p>}</div></div></div>;
+};
