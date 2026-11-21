@@ -1,0 +1,11 @@
+2026-11-20 — isolated synthetic demo checks
+PASS: npm run build (React/Vite frontend and Node bundle).
+PASS: npm run demo:verify; 12 synthetic cases; valid financial group.
+PASS: bank charge 887.04; issuer pool 3144.96; agent pool 10080; total Arcatav share 6926.98.
+PASS: actual server login with demo credentials.
+PASS: actual database PUT and fresh GET preserve Persian/English text exactly.
+PASS: original server PDF renderer produced valid 8892-byte PDF from sample invoice HTML.
+These are focused automated checks, not a full manual audit of every module.
+All original document-issuance components are included. Every document/template combination has not been individually print-tested.
+Mobile layout and redesigned visual quality must be evaluated after the AI Studio redesign.
+No production database was read, modified, exported or mounted for these checks.

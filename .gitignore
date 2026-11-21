@@ -1,0 +1,7 @@
+node_modules/
+dist/
+sandbox-data/
+.env
+.env.*
+*.log
+*.tar.gz

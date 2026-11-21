@@ -1,0 +1,9 @@
+services:
+  arca-design-demo:
+    build: .
+    ports:
+      - "127.0.0.1:3035:3035"
+    volumes:
+      - arca_design_demo_data:/app/sandbox-data
+volumes:
+  arca_design_demo_data:
