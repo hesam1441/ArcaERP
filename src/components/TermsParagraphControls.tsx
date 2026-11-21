@@ -1,0 +1,8 @@
+import React from "react";
+import { PrintParagraphStyle } from "../types";
+
+export const TermsParagraphControls: React.FC<{ label: string; value: PrintParagraphStyle; fallback?: PrintParagraphStyle; onChange: (patch: PrintParagraphStyle) => void }> = ({ label, value, fallback = {} as PrintParagraphStyle, onChange }) => <div className="flex flex-wrap items-end gap-3 text-[10px] text-slate-300" dir="rtl">
+  <label>اندازه متن (pt)<input aria-label={`${label} اندازه متن`} type="number" min="6" max="30" step="0.5" value={value.fontSizePt ?? ""} placeholder={String(fallback.fontSizePt ?? 8)} onChange={e => onChange({ fontSizePt: e.target.value === "" ? undefined : Number(e.target.value) })} className="mt-1 block w-24 rounded border border-slate-600 bg-slate-800 p-1.5 text-white"/></label>
+  <label>فاصله تا پاراگراف بعدی (pt)<input aria-label={`${label} فاصله پاراگراف`} type="number" min="0" max="72" step="0.5" value={value.spaceAfterPt ?? ""} placeholder={String(fallback.spaceAfterPt ?? 6)} onChange={e => onChange({ spaceAfterPt: e.target.value === "" ? undefined : Number(e.target.value) })} className="mt-1 block w-24 rounded border border-slate-600 bg-slate-800 p-1.5 text-white"/></label>
+  <label>تراز متن<select aria-label={`${label} تراز متن`} value={value.align ?? ""} onChange={e => onChange({ align: e.target.value ? e.target.value as PrintParagraphStyle["align"] : undefined })} className="mt-1 block rounded border border-slate-600 bg-slate-800 p-1.5 text-white"><option value="">پیش‌فرض</option><option value="left">چپ</option><option value="right">راست</option><option value="center">وسط</option><option value="justify">دوطرفه (Justify)</option></select></label>
+</div>;
