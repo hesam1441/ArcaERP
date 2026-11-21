@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import { initialDatabase as db } from '../src/data/initialData';
+import { validateFinancialGroups } from '../src/utils/financialGroups';
+import { calculateUnifiedProfit } from '../src/utils/caseProfitEngine';
+assert.equal(validateFinancialGroups(db),null);
+assert.equal(db.orders.length,12);
+const order=db.orders[0];
+const result=calculateUnifiedProfit(order,db.suppliers.find(s=>s.SupplierID===order.SupplierID),db.issuerCompanyShares,db);
+assert.ok(result);
+assert.equal(result.bankCharge,887.04);
+assert.equal(result.internalDistributableMargin,3144.96);
+assert.equal(result.agentMargin,10080);
+console.log(JSON.stringify({orders:db.orders.length,bankCharge:result.bankCharge,firstPool:result.internalDistributableMargin,secondPool:result.agentMargin,arcatav:result.arcatavShare},null,2));
