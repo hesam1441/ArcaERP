@@ -1,0 +1,372 @@
+/* Adapted from the user-approved AI Studio design. Tokens only; no sample data or global body reset. */
+:root {
+  /* Fonts */
+  --arca-font-sans: var(--arca-app-font, "Public Sans"), Tahoma, Arial, sans-serif;
+  --arca-font-mono: var(--arca-app-font, "Public Sans"), Tahoma, Arial, sans-serif;
+
+  /* Spacing & Control Sizing */
+  --arca-radius-panel: 12px;
+  --arca-radius-control: 8px;
+  --arca-radius-input: 8px;
+  --arca-control-h: 36px;
+  --arca-control-h-mobile: 44px;
+  --arca-sidebar-w: 248px;
+  --arca-sidebar-collapsed-w: 68px;
+  --arca-topbar-h: 52px;
+
+  /* Light Glass Theme (Default Crisp Navy/Porcelain) */
+  --arca-bg-canvas: #f2f5fa;
+  --arca-bg-ambient-1: rgba(30, 58, 138, 0.08);   /* Navy glow */
+  --arca-bg-ambient-2: rgba(124, 58, 237, 0.06);  /* Purple glow */
+  --arca-bg-ambient-3: rgba(13, 148, 136, 0.07);  /* Teal glow */
+
+  --arca-surface-glass: rgba(255, 255, 255, 0.84);
+  --arca-surface-solid: #ffffff;
+  --arca-surface-subtle: rgba(241, 245, 249, 0.85);
+  --arca-surface-hover: rgba(226, 232, 240, 0.55);
+  --arca-surface-sidebar: rgba(15, 23, 42, 0.96); /* Rich Navy Sidebar */
+  --arca-sidebar-text: #e2e8f0;
+  --arca-sidebar-muted: #94a3b8;
+  --arca-sidebar-border: rgba(148, 163, 184, 0.16);
+
+  --arca-border: rgba(15, 23, 42, 0.10);
+  --arca-border-strong: rgba(15, 23, 42, 0.18);
+
+  --arca-text-primary: #0f172a;
+  --arca-text-secondary: #334155;
+  --arca-text-muted: #64748b;
+
+  /* Brand Accents: Navy, Purple, Teal */
+  --arca-navy: #1e3a8a;
+  --arca-navy-soft: rgba(30, 58, 138, 0.10);
+  --arca-purple: #6d28d9;
+  --arca-purple-hover: #5b21b6;
+  --arca-purple-soft: rgba(109, 40, 217, 0.10);
+  --arca-teal: #0d9488;
+  --arca-teal-hover: #0f766e;
+  --arca-teal-soft: rgba(13, 148, 136, 0.11);
+
+  /* Sidebar Brand & Active State Tokens */
+  --arca-brand-from: #7c3aed;
+  --arca-brand-to: #14b8a6;
+  --arca-sidebar-active-bg: linear-gradient(to left, rgba(124, 58, 237, 0.25), rgba(20, 184, 166, 0.18));
+  --arca-sidebar-active-border: rgba(167, 139, 250, 0.32);
+  --arca-sidebar-active-icon: #5eead4;
+
+  /* Semantic Status (always paired with text/icon) */
+  --arca-amber: #b45309;
+  --arca-amber-soft: rgba(217, 119, 6, 0.12);
+  --arca-rose: #be123c;
+  --arca-rose-soft: rgba(225, 29, 72, 0.10);
+
+  --arca-shadow-glass: 0 4px 20px -4px rgba(15, 23, 42, 0.06);
+  --arca-blur: 12px;
+}
+
+/* Dark Navy-Glass Theme */
+:root[data-approved-mode="dark"] {
+  --arca-bg-canvas: #080d1b;
+  --arca-bg-ambient-1: rgba(30, 64, 175, 0.22);
+  --arca-bg-ambient-2: rgba(124, 58, 237, 0.16);
+  --arca-bg-ambient-3: rgba(13, 148, 136, 0.14);
+
+  --arca-surface-glass: rgba(17, 25, 48, 0.78);
+  --arca-surface-solid: #111930;
+  --arca-surface-subtle: rgba(26, 36, 66, 0.72);
+  --arca-surface-hover: rgba(38, 52, 92, 0.60);
+  --arca-surface-sidebar: rgba(11, 17, 34, 0.92);
+  --arca-sidebar-text: #f1f5f9;
+  --arca-sidebar-muted: #94a3b8;
+  --arca-sidebar-border: rgba(148, 163, 184, 0.14);
+
+  --arca-border: rgba(148, 163, 184, 0.14);
+  --arca-border-strong: rgba(148, 163, 184, 0.26);
+
+  --arca-text-primary: #f1f5f9;
+  --arca-text-secondary: #cbd5e1;
+  --arca-text-muted: #94a3b8;
+
+  --arca-navy: #60a5fa;
+  --arca-navy-soft: rgba(59, 130, 246, 0.16);
+  --arca-purple: #a78bfa;
+  --arca-purple-hover: #8b5cf6;
+  --arca-purple-soft: rgba(139, 92, 246, 0.18);
+  --arca-teal: #2dd4bf;
+  --arca-teal-hover: #14b8a6;
+  --arca-teal-soft: rgba(20, 184, 166, 0.16);
+
+  --arca-brand-from: #7c3aed;
+  --arca-brand-to: #14b8a6;
+  --arca-sidebar-active-bg: linear-gradient(to left, rgba(124, 58, 237, 0.28), rgba(20, 184, 166, 0.20));
+  --arca-sidebar-active-border: rgba(167, 139, 250, 0.34);
+  --arca-sidebar-active-icon: #5eead4;
+
+  --arca-amber: #fbbf24;
+  --arca-amber-soft: rgba(245, 158, 11, 0.16);
+  --arca-rose: #fb7185;
+  --arca-rose-soft: rgba(244, 63, 94, 0.16);
+
+  --arca-shadow-glass: 0 8px 28px -6px rgba(2, 6, 23, 0.45);
+}
+
+/* Template 2: Classic Slate Matte */
+[data-approved-preset="classic-slate"] {
+  --arca-bg-canvas: #eef2f6;
+  --arca-bg-ambient-1: rgba(15, 23, 42, 0.04);
+  --arca-bg-ambient-2: rgba(13, 148, 136, 0.04);
+  --arca-bg-ambient-3: rgba(15, 23, 42, 0.03);
+  --arca-surface-glass: #ffffff;
+  --arca-blur: 0px;
+}
+
+:root[data-approved-mode="dark"][data-approved-preset="classic-slate"] {
+  --arca-bg-canvas: #0f172a;
+  --arca-surface-glass: #1e293b;
+  --arca-blur: 0px;
+}
+
+/* Template 3: Emerald & Warm Bronze (زمردی و برنزی) */
+[data-approved-preset="emerald-bronze"] {
+  --arca-bg-canvas: #f2f7f5;
+  --arca-bg-ambient-1: rgba(6, 78, 59, 0.09);
+  --arca-bg-ambient-2: rgba(180, 83, 9, 0.06);
+  --arca-bg-ambient-3: rgba(14, 116, 144, 0.06);
+
+  --arca-surface-glass: rgba(255, 255, 255, 0.86);
+  --arca-surface-solid: #ffffff;
+  --arca-surface-subtle: rgba(236, 245, 241, 0.85);
+  --arca-surface-hover: rgba(209, 231, 221, 0.50);
+  --arca-surface-sidebar: rgba(7, 36, 28, 0.97);
+  --arca-sidebar-text: #ecfdf5;
+  --arca-sidebar-muted: #99b8ad;
+  --arca-sidebar-border: rgba(167, 243, 208, 0.14);
+
+  --arca-border: rgba(6, 78, 59, 0.11);
+  --arca-border-strong: rgba(6, 78, 59, 0.22);
+
+  --arca-navy: #0e7490;
+  --arca-navy-soft: rgba(14, 116, 144, 0.10);
+  --arca-purple: #047857;
+  --arca-purple-hover: #065f46;
+  --arca-purple-soft: rgba(4, 120, 87, 0.11);
+  --arca-teal: #b45309;
+  --arca-teal-hover: #92400e;
+  --arca-teal-soft: rgba(180, 83, 9, 0.11);
+
+  --arca-brand-from: #059669;
+  --arca-brand-to: #d97706;
+  --arca-sidebar-active-bg: linear-gradient(to left, rgba(5, 150, 105, 0.28), rgba(217, 119, 6, 0.18));
+  --arca-sidebar-active-border: rgba(52, 211, 153, 0.34);
+  --arca-sidebar-active-icon: #fbbf24;
+  --arca-blur: 12px;
+}
+
+:root[data-approved-mode="dark"][data-approved-preset="emerald-bronze"] {
+  --arca-bg-canvas: #061410;
+  --arca-bg-ambient-1: rgba(5, 150, 105, 0.18);
+  --arca-bg-ambient-2: rgba(217, 119, 6, 0.12);
+  --arca-bg-ambient-3: rgba(14, 116, 144, 0.14);
+
+  --arca-surface-glass: rgba(10, 31, 25, 0.80);
+  --arca-surface-solid: #0b221b;
+  --arca-surface-subtle: rgba(16, 46, 37, 0.75);
+  --arca-surface-hover: rgba(24, 68, 55, 0.62);
+  --arca-surface-sidebar: rgba(5, 22, 17, 0.94);
+  --arca-sidebar-text: #ecfdf5;
+  --arca-sidebar-muted: #8fb3a6;
+  --arca-sidebar-border: rgba(110, 231, 183, 0.14);
+
+  --arca-border: rgba(110, 231, 183, 0.14);
+  --arca-border-strong: rgba(110, 231, 183, 0.25);
+
+  --arca-text-primary: #ecfdf5;
+  --arca-text-secondary: #c7e2d9;
+  --arca-text-muted: #8aaea2;
+
+  --arca-navy: #38bdf8;
+  --arca-navy-soft: rgba(56, 189, 248, 0.15);
+  --arca-purple: #10b981;
+  --arca-purple-hover: #059669;
+  --arca-purple-soft: rgba(16, 185, 129, 0.18);
+  --arca-teal: #f59e0b;
+  --arca-teal-hover: #d97706;
+  --arca-teal-soft: rgba(245, 158, 11, 0.16);
+
+  --arca-brand-from: #10b981;
+  --arca-brand-to: #f59e0b;
+  --arca-sidebar-active-bg: linear-gradient(to left, rgba(16, 185, 129, 0.28), rgba(245, 158, 11, 0.18));
+  --arca-sidebar-active-border: rgba(52, 211, 153, 0.34);
+  --arca-sidebar-active-icon: #fbbf24;
+  --arca-blur: 12px;
+}
+
+/* Template 4: Graphite & Cobalt Sapphire (ذغالی و آبی کبالت) */
+[data-approved-preset="graphite-cobalt"] {
+  --arca-bg-canvas: #f4f4f6;
+  --arca-bg-ambient-1: rgba(37, 99, 235, 0.08);
+  --arca-bg-ambient-2: rgba(194, 65, 12, 0.05);
+  --arca-bg-ambient-3: rgba(39, 39, 42, 0.06);
+
+  --arca-surface-glass: rgba(255, 255, 255, 0.88);
+  --arca-surface-solid: #ffffff;
+  --arca-surface-subtle: rgba(244, 244, 247, 0.90);
+  --arca-surface-hover: rgba(228, 228, 234, 0.65);
+  --arca-surface-sidebar: rgba(20, 22, 27, 0.98);
+  --arca-sidebar-text: #f4f4f5;
+  --arca-sidebar-muted: #a1a1aa;
+  --arca-sidebar-border: rgba(255, 255, 255, 0.10);
+
+  --arca-border: rgba(24, 24, 27, 0.10);
+  --arca-border-strong: rgba(24, 24, 27, 0.20);
+
+  --arca-text-primary: #18181b;
+  --arca-text-secondary: #3f3f46;
+  --arca-text-muted: #71717a;
+
+  --arca-navy: #1d4ed8;
+  --arca-navy-soft: rgba(29, 78, 216, 0.10);
+  --arca-purple: #2563eb;
+  --arca-purple-hover: #1d4ed8;
+  --arca-purple-soft: rgba(37, 99, 235, 0.11);
+  --arca-teal: #c2410c;
+  --arca-teal-hover: #9a3412;
+  --arca-teal-soft: rgba(194, 65, 12, 0.11);
+
+  --arca-brand-from: #2563eb;
+  --arca-brand-to: #ea580c;
+  --arca-sidebar-active-bg: linear-gradient(to left, rgba(37, 99, 235, 0.28), rgba(234, 88, 12, 0.16));
+  --arca-sidebar-active-border: rgba(96, 165, 250, 0.35);
+  --arca-sidebar-active-icon: #60a5fa;
+  --arca-blur: 10px;
+}
+
+:root[data-approved-mode="dark"][data-approved-preset="graphite-cobalt"] {
+  --arca-bg-canvas: #0d0e11;
+  --arca-bg-ambient-1: rgba(37, 99, 235, 0.18);
+  --arca-bg-ambient-2: rgba(234, 88, 12, 0.11);
+  --arca-bg-ambient-3: rgba(63, 63, 70, 0.18);
+
+  --arca-surface-glass: rgba(24, 26, 32, 0.82);
+  --arca-surface-solid: #181a20;
+  --arca-surface-subtle: rgba(34, 37, 46, 0.78);
+  --arca-surface-hover: rgba(49, 53, 66, 0.65);
+  --arca-surface-sidebar: rgba(15, 16, 20, 0.96);
+  --arca-sidebar-text: #f4f4f5;
+  --arca-sidebar-muted: #a1a1aa;
+  --arca-sidebar-border: rgba(255, 255, 255, 0.10);
+
+  --arca-border: rgba(255, 255, 255, 0.10);
+  --arca-border-strong: rgba(255, 255, 255, 0.22);
+
+  --arca-text-primary: #f4f4f5;
+  --arca-text-secondary: #d4d4d8;
+  --arca-text-muted: #a1a1aa;
+
+  --arca-navy: #60a5fa;
+  --arca-navy-soft: rgba(96, 165, 250, 0.16);
+  --arca-purple: #3b82f6;
+  --arca-purple-hover: #2563eb;
+  --arca-purple-soft: rgba(59, 130, 246, 0.18);
+  --arca-teal: #fb923c;
+  --arca-teal-hover: #f97316;
+  --arca-teal-soft: rgba(251, 146, 60, 0.16);
+
+  --arca-brand-from: #3b82f6;
+  --arca-brand-to: #fb923c;
+  --arca-sidebar-active-bg: linear-gradient(to left, rgba(59, 130, 246, 0.28), rgba(251, 146, 60, 0.18));
+  --arca-sidebar-active-border: rgba(96, 165, 250, 0.36);
+  --arca-sidebar-active-icon: #60a5fa;
+  --arca-blur: 10px;
+}
+
+/* Density Presets */
+[data-approved-density="compact"] {
+  --arca-control-h: 32px;
+}
+
+[data-approved-density="comfortable"] {
+  --arca-control-h: 40px;
+}
+
+
+@media screen {
+/* Glass Panel Utility (preserves high legibility & low GPU cost) */
+.arca-panel {
+  background-color: var(--arca-surface-glass);
+  backdrop-filter: blur(var(--arca-blur));
+  -webkit-backdrop-filter: blur(var(--arca-blur));
+  border: 1px solid var(--arca-border);
+  border-radius: var(--arca-radius-panel);
+  box-shadow: var(--arca-shadow-glass);
+}
+
+.arca-panel-flat {
+  background-color: var(--arca-surface-subtle);
+  border: 1px solid var(--arca-border);
+  border-radius: var(--arca-radius-panel);
+}
+
+/* Tabular Numbers & BiDi Isolation Utilities */
+.arca-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.arca-mono {
+  font-family: var(--arca-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.bidi-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.bidi-plaintext {
+  unicode-bidi: plaintext;
+}
+
+/* Centralized input direction isolation (never mutates stored values) */
+[data-resolved-input-direction="ltr"] {
+  direction: ltr !important;
+  unicode-bidi: isolate;
+}
+
+[data-resolved-input-direction="rtl"] {
+  direction: rtl !important;
+  unicode-bidi: isolate;
+}
+
+:is(input, textarea, [contenteditable="true"], [contenteditable="plaintext-only"])[data-resolved-input-direction] {
+  text-align: start !important;
+}
+
+/* Control sizing helpers */
+.arca-control {
+  min-height: var(--arca-control-h);
+}
+
+@media (max-width: 1023px) {
+  .arca-control-touch {
+    min-height: var(--arca-control-h-mobile);
+  }
+
+  /* Prevent iOS/Android auto-zoom and improve readability on touch screens */
+  input.arca-touch-input,
+  textarea.arca-touch-input,
+  select.arca-touch-input {
+    font-size: 16px;
+  }
+}
+
+/* Hide scrollbars cleanly for horizontal touch tab strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+
+}

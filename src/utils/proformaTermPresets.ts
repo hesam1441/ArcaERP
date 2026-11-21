@@ -1,0 +1,12 @@
+const terms = [
+  { id: "estimated_freight", label: "برآورد حمل و افزایش بیش از ۵٪", title: "Estimated Freight Charges", category: "delivery", content: "Freight charges are estimates and are subject to confirmation at the time of booking. If the final freight charges exceed the quoted estimate by more than 5%, the additional amount shall be borne by the buyer.", aliases: [] },
+  { id: "validity", label: "اعتبار پروفورما", title: "Validity", category: "remarks", content: "This Proforma Invoice becomes null and void upon expiry.", aliases: ["*Proforma Invoice is null and void after the validity is over", "* Proforma Invoice is null and void after the validity expiration date."] },
+  { id: "destination_charges", label: "هزینه‌های مقصد", title: "Destination Charges", category: "delivery", content: "All charges incurred after cargo arrival at destination customs are for the consignee’s account.", aliases: ["- All charges Incurred after the arrival of cargo at Destination Customs will be on consignee account."] },
+  { id: "buyer_inspection", label: "هزینه بازرسی با خریدار", title: "Inspection", category: "remarks", content: "Any inspection costs shall be borne by the buyer.", aliases: ["- Inspection: If any, on buyer's account"] },
+  { id: "sanctions_compliance", label: "رعایت تحریم‌ها", title: "Sanctions Compliance", category: "custom", content: "All Iran-related shipments are subject to applicable UN, US, EU, and other sanctions. Bookings may be cancelled without notice due to compliance restrictions. Our companyCommerce accepts no liability for resulting costs or losses.", aliases: [] },
+  { id: "shipping_schedule", label: "برنامه حمل", title: "Shipping Schedule", category: "delivery", content: "Sailing dates and transit times for Iran shipments are not guaranteed. Our Company is not liable for delays, cancellations, or related additional charges.", aliases: [] },
+  { id: "price_adjustment", label: "بازنگری قیمت بیش از ۵٪", title: "Price Adjustment", category: "payment", content: "This offer is subject to renegotiation if the final payable amount varies by more than 5% at the time of payment.", aliases: [] },
+  { id: "arcatav_assistance", label: "تماس با Arcatav Commerce", title: "Further Assistance", category: "remarks", content: "For further assistance, please contact Arcatav Commerce.", aliases: [] },
+] as const;
+
+export const PROFORMA_TERM_PRESETS = terms.map(term => ({ ...term, text: term.id === "arcatav_assistance" ? term.content : `${term.title}: ${term.content}` }));
